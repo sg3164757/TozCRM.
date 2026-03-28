@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TozCRM - Manage Your Leads</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+        body { background: #f8fafc; color: #1e293b; display: flex; flex-direction: column; height: 100vh; }
+        
+        /* Header & Stats */
+        header { background: #0f172a; color: white; padding: 20px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .stats { display: flex; justify-content: center; gap: 20px; margin-top: 10px; font-size: 14px; }
+        .stat-item { background: #1e293b; padding: 5px 15px; border-radius: 20px; border: 1px solid #334155; }
+
+        /* Form Section */
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; width: 100%; }
+        .form-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+        input, button { padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; outline: none; transition: 0.3s; }
+        input:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1); }
+        .btn-add { background: #0ea5e9; color: white; font-weight: 700; border: none; cursor: pointer; text-transform: uppercase; }
+        .btn-add:hover { background: #0284c7; }
+
+        /* Table Section */
+        .table-container { background: white; border-radius: 12px; overflow-x: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        th { background: #f8fafc; font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase; }
+
+        /* Badges & Buttons */
+        .badge { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; border: none; cursor: pointer; min-width: 100px; }
+        .New { background: #e0f2fe; color: #0369a1; }
+        .Calling { background: #fef3c7; color: #92400e; }
+        .Confirmed { background: #dcfce7; color: #15803d; }
+        .Cancelled { background: #fee2e2; color: #b91c1c; }
+
+        .wa-link { color: #22c55e; font-size: 20px; text-decoration: none; font-weight: bold; }
+        .btn-del { color: #94a3b8; border: none; background: none; cursor: pointer; font-size: 16px; }
+        .btn-del:hover { color: #ef4444; }
+
+        #searchInput { width: 100%; max-width: 300px; margin-bottom: 15px; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>TozCRM 🚀</h1>
+    <div class="stats">
+        <div class="stat-item">Total Leads: <span id="totalLeads">0</span></div>
+        <div class="stat-item">Confirmed: <span id="totalConfirmed">0</span></div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="form-card">
+        <form id="leadForm" class="form-grid">
+            <input type="text" id="custName" placeholder="Customer Name" required>
+            <input type="tel" id="custPhone" placeholder="Phone (with 91)" required>
+            <input type="text" id="product" placeholder="Product Name">
+            <input type="number" id="price" placeholder="Price">
+            <button type="submit" class="btn-add">Add Lead</button>
+        </form>
+    </div>
+
+    <input type="text" id="searchInput" placeholder="🔍 Search name or phone..." onkeyup="searchLeads()">
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>WhatsApp</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="leadList"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let leads = JSON.parse(localStorage.getItem('tozData')) || [];
+
+    const leadForm = document.getElementById('leadForm');
+    const leadList = document.getElementById('leadList');
+
+    leadForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newLead = {
+            id: Date.now(),
+            name: document.getElementById('custName').value,
+            phone: document.getElementById('custPhone').value,
+            product: document.getElementById('product').value || 'N/A',
+            price: document.getElementById('price').value || '0',
+            status: 'New'
+        };
+        leads.unshift(newLead);
+        saveAndRender();
+        leadForm.reset();
+    });
+
+    function cycleStatus(id) {
+        const states = ['New', 'Calling', 'Confirmed', 'Cancelled'];
+        leads = leads.map(l => {
+            if (l.id === id) {
+                let next = (states.indexOf(l.status) + 1) % states.length;
+                l.status = states[next];
+            }
+            return l;
+        });
+        saveAndRender();
+    }
+
+    function deleteLead(id) {
+        if(confirm('Delete this lead?')) {
+            leads = leads.filter(l => l.id !== id);
+            saveAndRender();
+        }
+    }
+
+    function searchLeads() {
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        renderTable(leads.filter(l => l.name.toLowerCase().includes(term) || l.phone.includes(term)));
+    }
+
+    function saveAndRender() {
+        localStorage.setItem('tozData', JSON.stringify(leads));
+        renderTable(leads);
+        document.getElementById('totalLeads').innerText = leads.length;
+        document.getElementById('totalConfirmed').innerText = leads.filter(l => l.status === 'Confirmed').length;
+    }
+
+    function renderTable(data) {
+        leadList.innerHTML = '';
+        data.forEach(l => {
+            let p = l.phone.replace(/\D/g,'');
+            if(p.length === 10) p = '91' + p;
+
+            leadList.innerHTML += `
+                <tr>
+                    <td><strong>${l.name}</strong><br><small>${l.phone}</small></td>
+                    <td>${l.product}</td>
+                    <td>₹${l.price}</td>
+                    <td><button class="badge ${l.status}" onclick="cycleStatus(${l.id})">${l.status}</button></td>
+                    <td><a href="https://wa.me/${p}" target="_blank" class="wa-link">💬</a></td>
+                    <td><button class="btn-del" onclick="deleteLead(${l.id})">🗑️</button></td>
+                </tr>
+            `;
+        });
+    }
+
+    saveAndRender();
+</script>
+
+</body>
+</html>
+
