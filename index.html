@@ -3,204 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TozCRM - Pro Edition</title>
+    <title>TozCRM - Meta Automation Ready</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
-        body { background: #f0f2f5; color: #1c1e21; padding: 20px; }
+        body { background: #f4f7fa; color: #333; }
         
-        .crm-container { max-width: 1100px; margin: 0 auto; }
-        header { background: #1a237e; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        /* Stats Header */
+        .navbar { background: #1a237e; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .stats-group { display: flex; gap: 15px; }
+        .stat-badge { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 20px; font-size: 13px; border: 1px solid rgba(255,255,255,0.2); }
 
-        /* Form Section - LeadVertex Style */
-        .lead-form-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
-        .form-title { margin-bottom: 15px; font-weight: 700; color: #1a237e; border-bottom: 2px solid #f0f2f5; padding-bottom: 10px; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
+
+        /* Search & Filter */
+        .toolbar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        #searchInput { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #ddd; min-width: 250px; }
+
+        /* Table Style */
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #edf2f7; cursor: pointer; }
+        th { background: #f8fafc; font-weight: 700; color: #64748b; font-size: 12px; text-transform: uppercase; }
+        tr:hover { background: #f1f5f9; }
+
+        /* Status Pills */
+        .status { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .New { background: #e0f2fe; color: #0369a1; }
+        .No-Answer { background: #f3e5f5; color: #7b1fa2; }
+        .Confirmed { background: #dcfce7; color: #15803d; }
+        .Fake { background: #1a1a1a; color: white; }
+        .Call-Back { background: #fef3c7; color: #92400e; }
+
+        /* Detail Modal (Popup) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 15px; padding: 25px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
         
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
-        .input-group { display: flex; flex-direction: column; }
-        .input-group label { font-size: 12px; font-weight: 600; margin-bottom: 5px; color: #555; }
-        
-        input, select, textarea { padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; outline: none; }
-        input:focus { border-color: #1a237e; }
-
-        .btn-save { background: #2e7d32; color: white; border: none; padding: 15px; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 20px; width: 100%; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-save:hover { background: #1b5e20; }
-
-        /* Table Section */
-        .list-section { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .search-bar { padding: 15px; background: #f8f9fa; border-bottom: 1px solid #eee; }
-        #searchInput { width: 100%; max-width: 400px; padding: 8px; border-radius: 4px; border: 1px solid #ddd; }
-
-        table { width: 100%; border-collapse: collapse; min-width: 900px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; }
-        th { background: #f8f9fa; color: #333; }
-
-        /* Status Colors */
-        .status-pill { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; border: none; color: white; }
-        .New { background: #2196F3; }
-        .No-Answer { background: #9c27b0; }
-        .Call-Back { background: #ff9800; }
-        .Confirmed { background: #4caf50; }
-        .Not-Interested { background: #f44336; }
-        .Fake { background: #212121; }
-
-        .wa-btn { color: #25d366; font-size: 18px; text-decoration: none; }
-        .action-btn { background: none; border: none; cursor: pointer; font-size: 16px; margin-left: 10px; }
+        .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .full-width { grid-column: span 2; }
+        label { display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 5px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
+        .save-btn { background: #1a237e; color: white; border: none; width: 100%; padding: 15px; margin-top: 20px; border-radius: 8px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="crm-container">
-    <header>
-        <h1>TOZ CRM - LeadVertex Edition 🚀</h1>
-    </header>
+<div class="navbar">
+    <h2>TozCRM 🚀</h2>
+    <div class="stats-group">
+        <div class="stat-badge">New: <span id="countNew">0</span></div>
+        <div class="stat-badge">Confirmed: <span id="countConfirmed">0</span></div>
+    </div>
+</div>
 
-    <div class="lead-form-card">
-        <div class="form-title">ENTER CUSTOMER DETAILS</div>
-        <form id="leadForm">
-            <div class="form-grid">
-                <div class="input-group">
-                    <label>Customer Name</label>
-                    <input type="text" id="custName" placeholder="Full Name" required>
-                </div>
-                <div class="input-group">
-                    <label>Phone Number</label>
-                    <input type="tel" id="custPhone" placeholder="Mobile Number" required>
-                </div>
-                <div class="input-group">
-                    <label>City</label>
-                    <input type="text" id="city" placeholder="City Name">
-                </div>
-                <div class="input-group">
-                    <label>Pincode</label>
-                    <input type="number" id="pincode" placeholder="6 Digit Code">
-                </div>
-            </div>
-            
-            <div class="input-group" style="margin-top: 15px;">
-                <label>Full Address</label>
-                <textarea id="address" rows="2" placeholder="House No, Street, Area..."></textarea>
-            </div>
-
-            <div class="input-group" style="margin-top: 15px; max-width: 300px;">
-                <label>Initial Status</label>
-                <select id="status">
-                    <option value="New">New Lead</option>
-                    <option value="No-Answer">No Answer</option>
-                    <option value="Call-Back">Call Back</option>
-                    <option value="Confirmed">Confirmed</option>
-                    <option value="Not-Interested">Not Interested</option>
-                    <option value="Fake">Fake Customer</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn-save">Confirm & Save Profile</button>
-        </form>
+<div class="container">
+    <div class="toolbar">
+        <input type="text" id="searchInput" placeholder="🔍 Search name, phone or city..." onkeyup="renderTable()">
     </div>
 
-    <div class="list-section">
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="🔍 Search by Name, Phone or City..." onkeyup="searchLeads()">
-        </div>
-        <div style="overflow-x: auto;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Customer</th>
-                        <th>Location</th>
-                        <th>Status</th>
-                        <th>WhatsApp</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="leadList"></tbody>
-            </table>
-        </div>
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Customer Name</th>
+                    <th>Phone</th>
+                    <th>City</th>
+                    <th>Status</th>
+                    <th>WhatsApp</th>
+                </tr>
+            </thead>
+            <tbody id="leadList"></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h3 id="modalTitle">Edit Lead Details</h3>
+        <form id="editForm">
+            <input type="hidden" id="editId">
+            <div class="modal-grid">
+                <div>
+                    <label>Customer Name</label>
+                    <input type="text" id="editName" required>
+                </div>
+                <div>
+                    <label>Phone Number</label>
+                    <input type="tel" id="editPhone" required>
+                </div>
+                <div>
+                    <label>City</label>
+                    <input type="text" id="editCity">
+                </div>
+                <div>
+                    <label>Pincode</label>
+                    <input type="text" id="editPincode">
+                </div>
+                <div class="full-width">
+                    <label>Full Address</label>
+                    <textarea id="editAddress" rows="3"></textarea>
+                </div>
+                <div class="full-width">
+                    <label>Status</label>
+                    <select id="editStatus">
+                        <option value="New">New Lead</option>
+                        <option value="No-Answer">No Answer</option>
+                        <option value="Call-Back">Call Back</option>
+                        <option value="Confirmed">Confirmed</option>
+                        <option value="Not-Interested">Not Interested</option>
+                        <option value="Fake">Fake Customer</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="save-btn">UPDATE & SAVE CHANGES</button>
+        </form>
     </div>
 </div>
 
 <script>
-    let leads = JSON.parse(localStorage.getItem('tozProData')) || [];
+    // Data (In real case, this will come from Google Sheets)
+    let leads = JSON.parse(localStorage.getItem('tozAutomatedData')) || [
+        { id: 1, date: '2024-05-20', name: 'Sample Lead (Meta)', phone: '919876543210', city: 'Delhi', pincode: '110001', address: 'Wait for Meta data...', status: 'New' }
+    ];
 
-    const leadForm = document.getElementById('leadForm');
-    const leadList = document.getElementById('leadList');
-
-    leadForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const newLead = {
-            id: Date.now(),
-            date: new Date().toLocaleDateString(),
-            name: document.getElementById('custName').value,
-            phone: document.getElementById('custPhone').value,
-            city: document.getElementById('city').value || 'N/A',
-            pincode: document.getElementById('pincode').value || 'N/A',
-            address: document.getElementById('address').value || 'N/A',
-            status: document.getElementById('status').value
-        };
-        leads.unshift(newLead);
-        saveAndRender();
-        leadForm.reset();
-    });
-
-    // Function to Change Status directly from Table
-    function changeStatus(id) {
-        const statuses = ['New', 'No-Answer', 'Call-Back', 'Confirmed', 'Not-Interested', 'Fake'];
-        leads = leads.map(l => {
-            if (l.id === id) {
-                let currentIdx = statuses.indexOf(l.status);
-                let nextIdx = (currentIdx + 1) % statuses.length;
-                l.status = statuses[nextIdx];
-            }
-            return l;
-        });
-        saveAndRender();
-    }
-
-    function deleteLead(id) {
-        if(confirm('Are you sure you want to delete this lead?')) {
-            leads = leads.filter(l => l.id !== id);
-            saveAndRender();
-        }
-    }
-
-    function searchLeads() {
+    function renderTable() {
         const term = document.getElementById('searchInput').value.toLowerCase();
-        renderTable(leads.filter(l => 
-            l.name.toLowerCase().includes(term) || 
-            l.phone.includes(term) || 
-            l.city.toLowerCase().includes(term)
-        ));
-    }
+        const list = document.getElementById('leadList');
+        list.innerHTML = '';
 
-    function saveAndRender() {
-        localStorage.setItem('tozProData', JSON.stringify(leads));
-        renderTable(leads);
-    }
+        const filtered = leads.filter(l => 
+            l.name.toLowerCase().includes(term) || l.phone.includes(term) || l.city.toLowerCase().includes(term)
+        );
 
-    function renderTable(data) {
-        leadList.innerHTML = '';
-        data.forEach(l => {
-            let p = l.phone.replace(/\D/g,'');
-            if(p.length === 10) p = '91' + p;
-
-            leadList.innerHTML += `
-                <tr>
+        filtered.forEach(l => {
+            list.innerHTML += `
+                <tr onclick="openModal(${l.id})">
                     <td>${l.date}</td>
-                    <td><strong>${l.name}</strong><br><small>${l.phone}</small></td>
-                    <td>${l.city} (${l.pincode})<br><small>${l.address}</small></td>
-                    <td><button class="status-pill ${l.status}" onclick="changeStatus(${l.id})">${l.status}</button></td>
-                    <td><a href="https://wa.me/${p}" target="_blank" class="wa-btn">💬</a></td>
-                    <td>
-                        <button class="action-btn" onclick="deleteLead(${l.id})">🗑️</button>
-                    </td>
+                    <td><strong>${l.name}</strong></td>
+                    <td>${l.phone}</td>
+                    <td>${l.city}</td>
+                    <td><span class="status ${l.status}">${l.status}</span></td>
+                    <td><a href="https://wa.me/${l.phone.replace(/\D/g,'')}" onclick="event.stopPropagation()" target="_blank">💬</a></td>
                 </tr>
             `;
         });
+        updateStats();
     }
 
-    saveAndRender();
-</script>
+    function openModal(id) {
+        const lead = leads.find(l => l.id === id);
+        document.getElementById('editId').value = lead.id;
+        document.getElementById('editName').value = lead.name;
+        document.getElementById('editPhone').value = lead.phone;
+        document.getElementById('editCity').value = lead.city;
+        document.getElementById('editPincode').value = lead.pincode;
+        document.getElementById('editAddress').value = lead.address;
+        document.getElementById('editStatus').value = lead.status;
+        document.getElementById('editModal').style.display = 'flex';
+    }
 
+    function closeModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    document.getElementById('editForm').onsubmit = (e) => {
+        e.preventDefault();
+        const id = parseInt(document.getElementById('editId').value);
+        leads = leads.map(l => l.id === id ? {
+            ...l,
+            name: document.getElementById('editName').value,
+            phone: document.getElementById('editPhone').value,
+            city: document.getElementById('editCity').value,
+            pincode: document.getElementById('editPincode').value,
+            address: document.getElementById('editAddress').value,
+            status: document.getElementById('editStatus').value
+        } : l);
+        
+        localStorage.setItem('tozAutomatedData', JSON.stringify(leads));
+        renderTable();
+        closeModal();
+    };
+
+    function updateStats() {
+        document.getElementById('countNew').innerText = leads.filter(l => l.status === 'New').length;
+        document.getElementById('countConfirmed').innerText = leads.filter(l => l.status === 'Confirmed').length;
+    }
+
+    renderTable();
+</script>
 </body>
 </html>
