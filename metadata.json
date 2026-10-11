@@ -1,0 +1,8 @@
+{
+  "name": "TOZ Flow",
+  "description": "Enterprise CRM with TrafficStars postback tracking, lead management, inventory, and order fulfillment.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
